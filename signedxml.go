@@ -307,10 +307,6 @@ func calculateHash(reference *etree.Element, doc *etree.Document) (string, error
 		return "", err
 	}
 
-	//ioutil.WriteFile("C:/Temp/SignedXML/Suspect.xml", docBytes, 0644)
-	//s, _ := doc.WriteToString()
-	//logger.Println(s)
-
 	h.Write(docBytes)
 	d := h.Sum(nil)
 	calculatedValue := base64.StdEncoding.EncodeToString(d)

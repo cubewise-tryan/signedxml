@@ -58,13 +58,15 @@ func NewSigner(xml string) (*Signer, error) {
 // Sign populates the XML digest and signature based on the parameters present and privateKey given
 func (s *Signer) Sign(privateKey interface{}) (string, error) {
 	s.privateKey = privateKey
-
 	if s.signature == nil {
 		if err := s.parseEnvelopedSignature(); err != nil {
 			return "", err
 		}
 	}
 	if err := s.parseSignedInfo(); err != nil {
+		return "", err
+	}
+	if err := s.parseSigValue(); err != nil {
 		return "", err
 	}
 	if err := s.parseSigAlgorithm(); err != nil {
@@ -79,7 +81,6 @@ func (s *Signer) Sign(privateKey interface{}) (string, error) {
 	if err := s.setSignature(); err != nil {
 		return "", err
 	}
-
 	xml, err := s.xml.WriteToString()
 	if err != nil {
 		return "", err
