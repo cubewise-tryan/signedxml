@@ -81,6 +81,19 @@ func (s *Signer) Sign(privateKey interface{}) (string, error) {
 	if err := s.setSignature(); err != nil {
 		return "", err
 	}
+
+	signature := s.xml.Root().FindElement("Signature")
+	if signature != nil {
+		ns := signature.SelectAttrValue("xmlns", "")
+		signedInfo := signature.FindElement("SignedInfo")
+		if signedInfo != nil {
+			childNS := signedInfo.SelectAttrValue("xmlns", "")
+			if childNS != "" && ns == childNS {
+				signedInfo.RemoveAttr("xmlns")
+			}
+		}
+	}
+
 	xml, err := s.xml.WriteToString()
 	if err != nil {
 		return "", err

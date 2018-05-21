@@ -110,9 +110,25 @@ func (s *signatureData) parseEnvelopedSignature() error {
 
 func (s *signatureData) parseSignedInfo() error {
 	s.signedInfo = nil
-	s.signedInfo = s.signature.SelectElement("SignedInfo")
-	if s.signedInfo == nil {
+	signedInfo := s.signature.SelectElement("SignedInfo")
+	if signedInfo == nil {
 		return errors.New("signedxml: unable to find SignedInfo element")
+	}
+
+	s.signedInfo = signedInfo
+
+	// move the Signature level namespace down to SignedInfo so that the signature
+	// value will match up
+	if s.signedInfo.Space != "" {
+		attr := s.signature.SelectAttr(s.signedInfo.Space)
+		if attr != nil {
+			s.signedInfo.Attr = []etree.Attr{*attr}
+		}
+	} else {
+		attr := s.signature.SelectAttr("xmlns")
+		if attr != nil {
+			s.signedInfo.Attr = []etree.Attr{*attr}
+		}
 	}
 
 	// Copy SignedInfo xmlns: into itself if it does not exist and is defined as a root attribute
